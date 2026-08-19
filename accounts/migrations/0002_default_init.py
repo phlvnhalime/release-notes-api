@@ -11,18 +11,16 @@ def pre_default_init(apps, schema_editor):
     UserABS = apps.get_model("accounts", "UserABS")
     Account = apps.get_model("accounts", "Account")
 
-    user, created = UserABS.objects.get_or_create(
+    user, _ = UserABS.objects.get_or_create(
         email=DEFAULT_EMAIL,
         defaults={
             "first_name": "default_user",
             "last_name": "",
-            "password": make_password(DEFAULT_PASSWORD),
             "is_active": True,
         },
     )
-    if not created:
-        user.password = make_password(DEFAULT_PASSWORD)
-        user.save(update_fields=["password"])
+    user.password = make_password(DEFAULT_PASSWORD)
+    user.save(update_fields=["password"])
 
     Account.objects.get_or_create(
         user=user,
