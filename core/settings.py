@@ -169,3 +169,17 @@ CSRF_COOKIE_SAMESITE = "Lax"
 if not DEBUG:
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
+
+# ---------------------------------------------------------------------------
+# Default user (.env — run: python manage.py create_default_user)
+# ---------------------------------------------------------------------------
+
+DEFAULT_USER_EMAIL = env("DEFAULT_USER_EMAIL")
+DEFAULT_USER_USERNAME = env("DEFAULT_USER_USERNAME", default="demo")
+DEFAULT_USER_PASSWORD = env("DEFAULT_USER_PASSWORD")
+DEFAULT_USER_FIRST_NAME = env("DEFAULT_USER_FIRST_NAME", default="Demo")
+DEFAULT_USER_LAST_NAME = env("DEFAULT_USER_LAST_NAME", default="User")
+
+DEFAULT_ACCOUNT_NUMBER = env("DEFAULT_ACCOUNT_NUMBER", default="1000000001")
+DEFAULT_ACCOUNT_TYPE = env("DEFAULT_ACCOUNT_TYPE", default="checking")
+DEFAULT_ACCOUNT_BALANCE = env("DEFAULT_ACCOUNT_BALANCE", default="1000.00")
