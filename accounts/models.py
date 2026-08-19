@@ -1,14 +1,17 @@
 from uuid import uuid4
 
+from django.contrib.auth.models import AbstractBaseUser
 from django.db import models
 
 
-class UserABS(models.Model):
+class UserABS(AbstractBaseUser):
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = ["first_name", "last_name"]
+
     uuid = models.UUIDField(default=uuid4, editable=False, unique=True)
     email = models.EmailField(unique=True)
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
-    password = models.CharField(max_length=255)
     is_active = models.BooleanField(default=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -23,13 +26,13 @@ class UserABS(models.Model):
 
     def to_dict(self):
         return {
-            "id": self.id,
-            "uuid": str(self.uuid),
-            "email": self.email,
-            "first_name": self.first_name,
-            "last_name": self.last_name,
-            "created_at": self.created_at.isoformat(),
-            "updated_at": self.updated_at.isoformat(),
+            "__id__": self.id,
+            "__uuid__": str(self.uuid),
+            "__email__": self.email,
+            "__first_name__": self.first_name,
+            "__last_name__": self.last_name,
+            "__created_at__": self.created_at.isoformat(),
+            "__updated_at__": self.updated_at.isoformat(),
         }
 
 
@@ -58,12 +61,12 @@ class Account(models.Model):
 
     def to_dict(self):
         return {
-            "id": self.id,
-            "uuid": str(self.uuid),
-            "user": self.user.to_dict(),
-            "account_number": self.account_number,
-            "account_type": self.account_type,
-            "balance": str(self.balance),
-            "created_at": self.created_at.isoformat(),
-            "updated_at": self.updated_at.isoformat(),
+            "__id__": self.id,
+            "__uuid__": str(self.uuid),
+            "__user__": self.user.to_dict(),
+            "__account_number__": self.account_number,
+            "__account_type__": self.account_type,
+            "__balance__": str(self.balance),
+            "__created_at__": self.created_at.isoformat(),
+            "__updated_at__": self.updated_at.isoformat(),
         }

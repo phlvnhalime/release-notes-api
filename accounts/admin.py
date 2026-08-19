@@ -1,13 +1,6 @@
 from django.contrib import admin
 
-from accounts.models import Account, UserABS
-
-
-@admin.register(UserABS)
-class UserABSAdmin(admin.ModelAdmin):
-    list_display = ("email", "first_name", "last_name", "is_active", "created_at")
-    search_fields = ("email", "first_name", "last_name")
-    readonly_fields = ("password",)
+from accounts.models import Account
 
 
 @admin.register(Account)
