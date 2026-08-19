@@ -4,11 +4,11 @@ Multi-user bank account API built with Django REST Framework. Users can register
 
 ## About this project
 
-This repo uses a **deliberately simple domain model** — user, bank account, transaction — so the focus stays on Django and DRF fundamentals: custom user model, token auth, permissions, migrations, API design, and tests.
+Models are intentionally simple here: user, account, transaction. I wanted the repo to show Django/DRF basics without a heavy domain layer: custom user, token auth, permissions, migrations, API views, tests.
 
-That simplicity is an **intentional choice**, not a skill ceiling. In other projects I've designed and maintained **more complex models** — deeper relationships, cross-entity business rules, audit fields, soft-delete flows, and stricter data integrity — when the domain required it.
+I've built more complex models in other projects (more relations, business rules, audit fields, soft delete across tables). This one is smaller on purpose. The point is a codebase you can open and follow in an afternoon.
 
-Here the goal is different: show that I can write a **clean, readable codebase** with real patterns (PostgreSQL, Docker, linting, branch workflow) without hiding behind framework magic or over-engineering the schema.
+Postgres, Docker, pytest, flake8, feature branches. Real setup, not a demo that only runs on my machine.
 
 ## Stack
 
@@ -105,4 +105,4 @@ pytest
 | `feature/transactions` | planned | Transaction model, balance updates |
 | `feature/summary-reporting` | planned | Summary endpoints, filters |
 
-Built to demonstrate real Django patterns — not a JWT tutorial.
+Built to show Django patterns I actually use. Not a JWT tutorial.
