@@ -2,6 +2,14 @@
 
 Multi-user bank account API built with Django REST Framework. Users can register, authenticate via token cookie, manage bank accounts, and (upcoming) record income and expense transactions.
 
+## About this project
+
+This repo uses a **deliberately simple domain model** — user, bank account, transaction — so the focus stays on Django and DRF fundamentals: custom user model, token auth, permissions, migrations, API design, and tests.
+
+That simplicity is an **intentional choice**, not a skill ceiling. In other projects I've designed and maintained **more complex models** — deeper relationships, cross-entity business rules, audit fields, soft-delete flows, and stricter data integrity — when the domain required it.
+
+Here the goal is different: show that I can write a **clean, readable codebase** with real patterns (PostgreSQL, Docker, linting, branch workflow) without hiding behind framework magic or over-engineering the schema.
+
 ## Stack
 
 - Django 5 + Django REST Framework
