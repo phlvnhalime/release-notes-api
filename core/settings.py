@@ -1,32 +1,57 @@
+from pathlib import Path
+
 import environ
 
-BASE_DIR = environ.Path(__file__) - 2
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 env = environ.Env(
     DEBUG=(bool, False),
 )
 
-environ.Env.read_env(BASE_DIR(".env"))
+env.read_env(BASE_DIR / ".env")
+
+# ---------------------------------------------------------------------------
+# Core
+# ---------------------------------------------------------------------------
 
 SECRET_KEY = env("SECRET_KEY")
 DEBUG = env("DEBUG")
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["localhost", "127.0.0.1"])
 
-INSTALLED_APPS = [
+CSRF_TRUSTED_ORIGINS = env.list(
+    "CSRF_TRUSTED_ORIGINS",
+    default=["http://localhost:8000", "http://127.0.0.1:8000"],
+)
+
+# ---------------------------------------------------------------------------
+# Applications
+# ---------------------------------------------------------------------------
+
+DJANGO_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    # Third party
+]
+
+THIRD_PARTY_APPS = [
     "rest_framework",
     "drf_spectacular",
-    # Local apps
+]
+
+LOCAL_APPS = [
     "users",
     "accounts",
     "transactions",
 ]
+
+INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
+
+# ---------------------------------------------------------------------------
+# Middleware
+# ---------------------------------------------------------------------------
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -39,6 +64,12 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = "core.urls"
+WSGI_APPLICATION = "core.wsgi.application"
+ASGI_APPLICATION = "core.asgi.application"
+
+# ---------------------------------------------------------------------------
+# Templates
+# ---------------------------------------------------------------------------
 
 TEMPLATES = [
     {
@@ -56,19 +87,24 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "core.wsgi.application"
-ASGI_APPLICATION = "core.asgi.application"
+# ---------------------------------------------------------------------------
+# Database
+# ---------------------------------------------------------------------------
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": env("POSTGRES_DB", default="wallet_db"),
-        "USER": env("POSTGRES_USER", default="wallet_user"),
-        "PASSWORD": env("POSTGRES_PASSWORD", default="wallet_pass"),
-        "HOST": env("POSTGRES_HOST", default="localhost"),
-        "PORT": env("POSTGRES_PORT", default="5432"),
-    }
+    "default": env.db(
+        "DATABASE_URL",
+        default=f"postgres://{env('POSTGRES_USER', default='wallet_user')}:"
+        f"{env('POSTGRES_PASSWORD', default='wallet_pass')}@"
+        f"{env('POSTGRES_HOST', default='localhost')}:"
+        f"{env('POSTGRES_PORT', default='5432')}/"
+        f"{env('POSTGRES_DB', default='wallet_db')}",
+    )
 }
+
+# ---------------------------------------------------------------------------
+# Auth
+# ---------------------------------------------------------------------------
 
 AUTH_USER_MODEL = "users.User"
 
@@ -79,29 +115,57 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
+# ---------------------------------------------------------------------------
+# Internationalization
+# ---------------------------------------------------------------------------
+
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
 
+# ---------------------------------------------------------------------------
+# Static files
+# ---------------------------------------------------------------------------
+
 STATIC_URL = "static/"
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# ---------------------------------------------------------------------------
+# Django REST Framework
+# ---------------------------------------------------------------------------
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.SessionAuthentication",
     ],
     "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.AllowAny",
+        "rest_framework.permissions.IsAuthenticated",
     ],
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
+# ---------------------------------------------------------------------------
+# OpenAPI / Swagger
+# ---------------------------------------------------------------------------
+
 SPECTACULAR_SETTINGS = {
     "TITLE": "Wallet API",
-    "DESCRIPTION": "Multi-user bank account API with income/expense tracking.",
+    "DESCRIPTION": "Multi-user bank account API with income and expense tracking.",
     "VERSION": "0.1.0",
 }
 
+# ---------------------------------------------------------------------------
+# Session & CSRF (cookie-based auth for API clients)
+# ---------------------------------------------------------------------------
+
 SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = "Lax"
+
 CSRF_COOKIE_HTTPONLY = False
+CSRF_COOKIE_SAMESITE = "Lax"
+
+if not DEBUG:
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
