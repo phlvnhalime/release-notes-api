@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.urls import path
+from django.urls import include, path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
@@ -14,6 +14,7 @@ def health_check(request):
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("api/", include("accounts.urls")),
     path("api/health/", health_check, name="health-check"),
     path(
         "api/schema/",
