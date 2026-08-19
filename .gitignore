@@ -36,6 +36,7 @@ staticfiles/
 .coverage
 htmlcov/
 .mypy_cache/
+cookies.txt
 
 # Docker
 *.pid
