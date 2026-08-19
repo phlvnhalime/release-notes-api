@@ -171,7 +171,7 @@ if not DEBUG:
     CSRF_COOKIE_SECURE = True
 
 # ---------------------------------------------------------------------------
-# Default user (.env — run: python manage.py create_default_user)
+# Default user (.env — run: python manage.py sync_default_user)
 # ---------------------------------------------------------------------------
 
 DEFAULT_USER_EMAIL = env("DEFAULT_USER_EMAIL")
