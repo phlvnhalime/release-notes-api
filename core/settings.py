@@ -38,6 +38,7 @@ DJANGO_APPS = [
 
 THIRD_PARTY_APPS = [
     "rest_framework",
+    "rest_framework.authtoken",
     "drf_spectacular",
 ]
 
@@ -105,6 +106,9 @@ DATABASES = {
 # Auth
 # ---------------------------------------------------------------------------
 
+AUTH_USER_MODEL = "accounts.UserABS"
+AUTH_COOKIE = "token"
+
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": (
@@ -146,7 +150,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework.authentication.SessionAuthentication",
+        "core.middlewares.TokenAuthSupportCookie",
     ],
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
@@ -168,6 +172,9 @@ SPECTACULAR_SETTINGS = {
 # Session & CSRF (cookie-based auth for API clients)
 # ---------------------------------------------------------------------------
 
+SESSION_COOKIE_NAME = "sessionid"
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 14
+SESSION_SAVE_EVERY_REQUEST = True
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = "Lax"
 
