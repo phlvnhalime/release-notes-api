@@ -1,6 +1,6 @@
 # Wallet API
 
-Multi-user bank account API built with Django REST Framework. Users can register, authenticate via token cookie, manage bank accounts, and (upcoming) record income and expense transactions.
+Multi-user bank account API built with Django REST Framework. Users can register, authenticate via token cookie, manage bank accounts, and record income and expense transactions.
 
 ## About this project
 
@@ -23,7 +23,7 @@ Postgres, Docker, pytest, flake8, feature branches. Real setup, not a demo that 
 ```
 core/           # settings, urls, TokenAuthSupportCookie middleware
 accounts/       # UserABS, Account models, auth + account API
-transactions/   # Income / expense (planned)
+transactions/   # Income / expense, balance updates
 tests/
 requirements/
 ```
@@ -61,6 +61,10 @@ Default seed user (from migration):
 | GET | `/api/accounts/<id>/` | Yes | Account detail |
 | PATCH | `/api/accounts/<id>/` | Yes | Update account type |
 | DELETE | `/api/accounts/<id>/` | Yes | Soft delete account |
+| GET | `/api/accounts/<id>/transactions/` | Yes | List account transactions |
+| POST | `/api/accounts/<id>/transactions/` | Yes | Create income or expense |
+| GET | `/api/accounts/<id>/transactions/<id>/` | Yes | Transaction detail |
+| DELETE | `/api/accounts/<id>/transactions/<id>/` | Yes | Soft delete and reverse balance |
 
 Responses use double-underscore keys: `__email__`, `__account_number__`, `__detail__`, etc.
 
@@ -102,7 +106,7 @@ pytest
 | `develop` | integration | Active development |
 | `feature/users-auth` | merged | Register, login, logout, token auth |
 | `feature/accounts-core` | merged | Account CRUD |
-| `feature/transactions` | planned | Transaction model, balance updates |
+| `feature/transactions` | in progress | Transaction model, balance updates |
 | `feature/summary-reporting` | planned | Summary endpoints, filters |
 
 Built to show Django patterns I actually use. Not a JWT tutorial.
