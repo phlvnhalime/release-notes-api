@@ -106,7 +106,7 @@ pytest
 | `develop` | integration | Active development |
 | `feature/users-auth` | merged | Register, login, logout, token auth |
 | `feature/accounts-core` | merged | Account CRUD |
-| `feature/transactions` | in progress | Transaction model, balance updates |
+| `feature/transactions` | merged | Transaction model, balance updates |
 | `feature/summary-reporting` | planned | Summary endpoints, filters |
 
 Built to show Django patterns I actually use. Not a JWT tutorial.
