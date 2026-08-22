@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: [master, develop]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: wallet_db
+          POSTGRES_USER: wallet_user
+          POSTGRES_PASSWORD: wallet_pass
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U wallet_user -d wallet_db"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      SECRET_KEY: ci-not-a-secret
+      DEBUG: "True"
+      DJANGO_SETTINGS_MODULE: core.settings
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: wallet_db
+      POSTGRES_USER: wallet_user
+      POSTGRES_PASSWORD: wallet_pass
+      DEFAULT_USER_EMAIL: demo@wallet.local
+      DEFAULT_USER_PASSWORD: WalletDemo123!
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements/dev.txt
+
+      - name: Tests
+        run: pytest
+
+      - name: Lint
+        run: ./run.sh
