@@ -1,6 +1,11 @@
 # Wallet API
 
-[![CI](https://github.com/phlvnhalime/release-notes-api/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/phlvnhalime/release-notes-api/actions/workflows/ci.yml)
+[![CI](https://img.shields.io/github/actions/workflow/status/phlvnhalime/release-notes-api/ci.yml?branch=master&style=flat-square&logo=githubactions&logoColor=white&label=CI)](https://github.com/phlvnhalime/release-notes-api/actions/workflows/ci.yml)
+[![Python](https://img.shields.io/badge/python-3.12-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
+[![Django](https://img.shields.io/badge/django-5-092E20?style=flat-square&logo=django&logoColor=white)](https://www.djangoproject.com/)
+[![DRF](https://img.shields.io/badge/DRF-3-a30000?style=flat-square)](https://www.django-rest-framework.org/)
+[![Postgres](https://img.shields.io/badge/postgres-16-4169E1?style=flat-square&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Docker](https://img.shields.io/badge/docker-compose-2496ED?style=flat-square&logo=docker&logoColor=white)](https://docs.docker.com/compose/)
 
 Multi-user bank account API built with Django REST Framework. Users can register, authenticate via token cookie, manage bank accounts, and record income and expense transactions.
 
