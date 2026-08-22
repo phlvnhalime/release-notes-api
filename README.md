@@ -1,5 +1,7 @@
 # Wallet API
 
+[![CI](https://github.com/phlvnhalime/release-notes-api/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/phlvnhalime/release-notes-api/actions/workflows/ci.yml)
+
 Multi-user bank account API built with Django REST Framework. Users can register, authenticate via token cookie, manage bank accounts, and record income and expense transactions.
 
 ## About this project
@@ -29,6 +31,7 @@ accounts/       # UserABS, Account models, auth + account API
 transactions/   # Income / expense, balance updates
 tests/
 requirements/
+.github/workflows/ci.yml   # GitHub Actions: pytest + flake8
 ```
 
 
@@ -118,7 +121,9 @@ pytest
 ./run.sh   # flake8
 ```
 
-Push and pull requests run the same checks in GitHub Actions.
+The same checks run on GitHub Actions (`.github/workflows/ci.yml`) for pushes to `master`/`develop` and for pull requests: Postgres, pytest, flake8.
+
+Runs: [github.com/phlvnhalime/release-notes-api/actions](https://github.com/phlvnhalime/release-notes-api/actions)
 
 
 
