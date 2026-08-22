@@ -50,7 +50,7 @@ def account(user):
 
 @pytest.mark.django_db
 def test_list_transactions_empty(auth_client, account):
-    response = auth_client.get(f"/api/accounts/{account.id}/transactions/")
+    response = auth_client.get(f"/api/accounts/{account.uuid}/transactions/")
     assert response.status_code == 200
     assert response.json() == []
 
@@ -58,7 +58,7 @@ def test_list_transactions_empty(auth_client, account):
 @pytest.mark.django_db
 def test_create_income_updates_balance(auth_client, account):
     response = auth_client.post(
-        f"/api/accounts/{account.id}/transactions/",
+        f"/api/accounts/{account.uuid}/transactions/",
         {
             "transaction_type": "income",
             "amount": "25.50",
@@ -79,7 +79,7 @@ def test_create_income_updates_balance(auth_client, account):
 @pytest.mark.django_db
 def test_create_expense_updates_balance(auth_client, account):
     response = auth_client.post(
-        f"/api/accounts/{account.id}/transactions/",
+        f"/api/accounts/{account.uuid}/transactions/",
         {"transaction_type": "expense", "amount": "40.00"},
         content_type="application/json",
     )
@@ -91,7 +91,7 @@ def test_create_expense_updates_balance(auth_client, account):
 @pytest.mark.django_db
 def test_expense_rejects_insufficient_balance(auth_client, account):
     response = auth_client.post(
-        f"/api/accounts/{account.id}/transactions/",
+        f"/api/accounts/{account.uuid}/transactions/",
         {"transaction_type": "expense", "amount": "100.01"},
         content_type="application/json",
     )
@@ -104,7 +104,7 @@ def test_expense_rejects_insufficient_balance(auth_client, account):
 @pytest.mark.django_db
 def test_create_transaction_requires_valid_fields(auth_client, account):
     response = auth_client.post(
-        f"/api/accounts/{account.id}/transactions/",
+        f"/api/accounts/{account.uuid}/transactions/",
         {"transaction_type": "transfer", "amount": "10"},
         content_type="application/json",
     )
@@ -124,7 +124,7 @@ def test_cannot_transact_on_other_users_account(
         balance="50.00",
     )
     response = auth_client.post(
-        f"/api/accounts/{other_account.id}/transactions/",
+        f"/api/accounts/{other_account.uuid}/transactions/",
         {"transaction_type": "income", "amount": "10"},
         content_type="application/json",
     )
@@ -140,7 +140,7 @@ def test_get_transaction(auth_client, account):
         description="gift",
     )
     response = auth_client.get(
-        f"/api/accounts/{account.id}/transactions/{row.id}/",
+        f"/api/accounts/{account.uuid}/transactions/{row.uuid}",
     )
     assert response.status_code == 200
     assert response.json()["__description__"] == "gift"
@@ -149,14 +149,14 @@ def test_get_transaction(auth_client, account):
 @pytest.mark.django_db
 def test_delete_expense_restores_balance(auth_client, account):
     create = auth_client.post(
-        f"/api/accounts/{account.id}/transactions/",
+        f"/api/accounts/{account.uuid}/transactions/",
         {"transaction_type": "expense", "amount": "30.00"},
         content_type="application/json",
     )
-    transaction_id = create.json()["__id__"]
+    transaction_uuid = create.json()["__uuid__"]
 
     response = auth_client.delete(
-        f"/api/accounts/{account.id}/transactions/{transaction_id}/",
+        f"/api/accounts/{account.uuid}/transactions/{transaction_uuid}",
     )
     assert response.status_code == 200
     assert response.json()["__detail__"] == "__deleted__"
@@ -164,5 +164,5 @@ def test_delete_expense_restores_balance(auth_client, account):
     account.refresh_from_db()
     assert str(account.balance) == "100.00"
 
-    listed = auth_client.get(f"/api/accounts/{account.id}/transactions/")
+    listed = auth_client.get(f"/api/accounts/{account.uuid}/transactions/")
     assert listed.json() == []

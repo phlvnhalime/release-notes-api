@@ -7,9 +7,9 @@ from rest_framework.views import APIView
 from accounts.models import Account
 
 
-def get_user_account(user, account_id):
+def get_user_account(user, account_uuid):
     return Account.objects.filter(
-        pk=account_id,
+        uuid=account_uuid,
         user=user,
         deleted_at__isnull=True,
     ).first()
@@ -52,14 +52,14 @@ class AccountListCreateView(APIView):
 class AccountDetailView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, account_id):
-        account = get_user_account(request.user, account_id)
+    def get(self, request, account_uuid):
+        account = get_user_account(request.user, account_uuid)
         if account is None:
             return Response({"__detail__": "__not_found__"}, status=404)
         return Response(account.to_dict())
 
-    def patch(self, request, account_id):
-        account = get_user_account(request.user, account_id)
+    def patch(self, request, account_uuid):
+        account = get_user_account(request.user, account_uuid)
         if account is None:
             return Response({"__detail__": "__not_found__"}, status=404)
 
@@ -71,8 +71,8 @@ class AccountDetailView(APIView):
         account.save(update_fields=["account_type", "updated_at"])
         return Response(account.to_dict())
 
-    def delete(self, request, account_id):
-        account = get_user_account(request.user, account_id)
+    def delete(self, request, account_uuid):
+        account = get_user_account(request.user, account_uuid)
         if account is None:
             return Response({"__detail__": "__not_found__"}, status=404)
 

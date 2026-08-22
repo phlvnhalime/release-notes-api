@@ -10,7 +10,7 @@ urlpatterns = [
     path("auth/me/", MeView.as_view(), name="auth-me"),
     path("accounts/", AccountListCreateView.as_view(), name="account-list-create"),
     path(
-        "accounts/<int:account_id>/",
+        "accounts/<account-uuid:account_uuid>",
         AccountDetailView.as_view(),
         name="account-detail",
     ),

@@ -1,7 +1,8 @@
 from decimal import Decimal, InvalidOperation
 
 from django.db import transaction as db_transaction
-from django.db.models import F
+from django.db.models import F, Q, Sum
+from django.db.models.functions import Coalesce
 from django.utils import timezone
 
 from rest_framework.permissions import IsAuthenticated
@@ -11,8 +12,7 @@ from rest_framework.views import APIView
 from accounts.account_views import get_user_account
 from accounts.models import Account
 from transactions.models import Transaction
-
-ALLOWED_TYPES = {Transaction.INCOME, Transaction.EXPENSE}
+from transactions.utils import ALLOWED_TYPES, filter_transactions
 
 
 def parse_amount(value):
@@ -28,18 +28,22 @@ def parse_amount(value):
 class TransactionListCreateView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, account_id):
-        account = get_user_account(request.user, account_id)
+    def get(self, request, account_uuid):
+        account = get_user_account(request.user, account_uuid)
         if account is None:
             return Response({"__detail__": "__not_found__"}, status=404)
 
         rows = Transaction.objects.filter(
             account=account,
             deleted_at__isnull=True,
-        ).order_by("-created_at")
+        )
+        rows, error = filter_transactions(rows, request.query_params)
+        if error:
+            return Response({"__detail__": error}, status=400)
+        rows = rows.order_by("-created_at")
         return Response([row.to_dict() for row in rows])
 
-    def post(self, request, account_id):
+    def post(self, request, account_uuid):
         transaction_type = request.data.get("transaction_type")
         amount = parse_amount(request.data.get("amount"))
         description = request.data.get("description") or ""
@@ -51,7 +55,7 @@ class TransactionListCreateView(APIView):
             account = (
                 Account.objects.select_for_update()
                 .filter(
-                    pk=account_id,
+                    uuid=account_uuid,
                     user=request.user,
                     deleted_at__isnull=True,
                 )
@@ -88,13 +92,13 @@ class TransactionListCreateView(APIView):
 class TransactionDetailView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, account_id, transaction_id):
-        account = get_user_account(request.user, account_id)
+    def get(self, request, account_uuid, transaction_uuid):
+        account = get_user_account(request.user, account_uuid)
         if account is None:
             return Response({"__detail__": "__not_found__"}, status=404)
 
         row = Transaction.objects.filter(
-            pk=transaction_id,
+            uuid=transaction_uuid,
             account=account,
             deleted_at__isnull=True,
         ).first()
@@ -102,12 +106,12 @@ class TransactionDetailView(APIView):
             return Response({"__detail__": "__not_found__"}, status=404)
         return Response(row.to_dict())
 
-    def delete(self, request, account_id, transaction_id):
+    def delete(self, request, account_uuid, transaction_uuid):
         with db_transaction.atomic():
             account = (
                 Account.objects.select_for_update()
                 .filter(
-                    pk=account_id,
+                    uuid=account_uuid,
                     user=request.user,
                     deleted_at__isnull=True,
                 )
@@ -119,7 +123,7 @@ class TransactionDetailView(APIView):
             row = (
                 Transaction.objects.select_for_update()
                 .filter(
-                    pk=transaction_id,
+                    uuid=transaction_uuid,
                     account=account,
                     deleted_at__isnull=True,
                 )
@@ -143,3 +147,50 @@ class TransactionDetailView(APIView):
             row.save(update_fields=["deleted_at", "updated_at"])
 
         return Response({"__detail__": "__deleted__"})
+
+
+class AccountSummaryView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, account_uuid):
+        account = get_user_account(request.user, account_uuid)
+        if account is None:
+            return Response({"__detail__": "__not_found__"}, status=404)
+
+        rows = Transaction.objects.filter(
+            account=account,
+            deleted_at__isnull=True,
+        )
+        rows, error = filter_transactions(rows, request.query_params)
+        if error:
+            return Response({"__detail__": error}, status=400)
+
+        totals = rows.aggregate(
+            income_total=Coalesce(
+                Sum(
+                    "amount",
+                    filter=Q(transaction_type=Transaction.INCOME),
+                ),
+                Decimal("0.00"),
+            ),
+            expense_total=Coalesce(
+                Sum(
+                    "amount",
+                    filter=Q(transaction_type=Transaction.EXPENSE),
+                ),
+                Decimal("0.00"),
+            ),
+        )
+        income_total = totals["income_total"]
+        expense_total = totals["expense_total"]
+
+        return Response(
+            {
+                "__account_id__": account.id,
+                "__uuid__": str(account.uuid),
+                "__balance__": str(account.balance),
+                "__income_total__": str(income_total),
+                "__expense_total__": str(expense_total),
+                "__count__": rows.count(),
+            }
+        )

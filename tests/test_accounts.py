@@ -87,7 +87,7 @@ def test_create_account_duplicate_number(auth_client, account):
 
 @pytest.mark.django_db
 def test_get_account(auth_client, account):
-    response = auth_client.get(f"/api/accounts/{account.id}/")
+    response = auth_client.get(f"/api/accounts/{account.uuid}")
     assert response.status_code == 200
     assert response.json()["__account_number__"] == "9876543210"
 
@@ -99,14 +99,14 @@ def test_get_other_users_account(auth_client, other_user):
         account_number="5555555555",
         account_type="checking",
     )
-    response = auth_client.get(f"/api/accounts/{other_account.id}/")
+    response = auth_client.get(f"/api/accounts/{other_account.uuid}")
     assert response.status_code == 404
 
 
 @pytest.mark.django_db
 def test_update_account(auth_client, account):
     response = auth_client.patch(
-        f"/api/accounts/{account.id}/",
+        f"/api/accounts/{account.uuid}",
         {"account_type": "savings"},
         content_type="application/json",
     )
@@ -116,7 +116,7 @@ def test_update_account(auth_client, account):
 
 @pytest.mark.django_db
 def test_delete_account(auth_client, account):
-    response = auth_client.delete(f"/api/accounts/{account.id}/")
+    response = auth_client.delete(f"/api/accounts/{account.uuid}")
     assert response.status_code == 200
     assert response.json()["__detail__"] == "__deleted__"
     account.refresh_from_db()
